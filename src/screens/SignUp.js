@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Container, Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { auth, db } from '../firebase';
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
@@ -26,6 +26,7 @@ const INITIAL_STATE = {
 	Rol: 0,
 	passwordOne: '',
 	passwordTwo: '',
+	crearIglesia: false,
 	error: null,
 	windowHeight: 0,
 	windowWidth: 0
@@ -40,6 +41,7 @@ class SignUpForm extends Component {
 		super(props);
 
 		this.state = { ...INITIAL_STATE };
+		this.toggle = this.toggle.bind(this);
 	}
 
 	componentDidMount() {
@@ -58,6 +60,24 @@ class SignUpForm extends Component {
 
 	handleDateChange = (date) => {
 		this.setState({ Nacimiento: format(date, 'MM/DD/YYYY') });
+	}
+
+	changeIglesia = (event) =>{
+		if (event.target.value === "Otra"){
+			this.setState({
+				crearIglesia: true,
+			})
+		} else {
+			this.setState({
+				Iglesia: event.target.value
+			})
+		}
+	}
+
+	toggle() {
+		this.setState({
+			crearIglesia: !this.state.crearIglesia
+		});
 	}
 
 	onSubmit = (event) => {
@@ -197,14 +217,15 @@ class SignUpForm extends Component {
 													name="Iglesia" 
 													id="inputIglesia" 
 													placeholder="Iglesia..."
-													onChange={event => this.setState(byPropKey('Iglesia', event.target.value))}
+													onChange={ this.changeIglesia }
 												>
 													<option value="">-- Seleccionar Congregación --</option>
-													<option value="ICC Dulce Refugio (Madrid)">ICC Dulce Refugio (Madrid)</option>
-													<option value="ICC Santa Rosita">ICC Santa Rosita</option>
-													<option value="ICC Patio Bonito">ICC Patio Bonito</option>
-													<option value="ICC Facatativa">ICC Facatativa</option>
-													<option value="ICC Mosquera">ICC Mosquera</option>
+													<option>ICC Dulce Refugio (Madrid)</option>
+													<option>ICC Santa Rosita</option>
+													<option>ICC Patio Bonito</option>
+													<option>ICC Facatativa</option>
+													<option>ICC Mosquera</option>
+													<option>Otra</option>
 												</Input>
 											</FormGroup>
 										</Col>
@@ -219,13 +240,13 @@ class SignUpForm extends Component {
 													placeholder="Cargo..."
 													onChange={event => this.setState(byPropKey('Cargo', event.target.value))}
 												>
+													<option value="">-- Seleccionar Cargo --</option>
 													<option>Invitado</option>
 													<option>Miembro</option>
 													<option>Servidor</option>
-													<option>Alabanza</option>
 													<option>Lider</option>
-													<option>CoPastor</option>
 													<option>Pastor</option>
+													<option>Otro</option>
 												</Input>
 											</FormGroup>
 										</Col>
@@ -281,6 +302,17 @@ class SignUpForm extends Component {
 							</div>
 
 						</div>
+
+						<Modal isOpen={this.state.crearIglesia} toggle={this.toggle} className={this.props.className}>
+							<ModalHeader toggle={this.toggle}>Modal title</ModalHeader>
+							<ModalBody>
+								Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+							</ModalBody>
+							<ModalFooter>
+								<Button color="primary" onClick={this.toggle}>Do Something</Button>{' '}
+								<Button color="secondary" onClick={this.toggle}>Cancel</Button>
+							</ModalFooter>
+						</Modal>
 
 					</Col>
 				</Row>
