@@ -1,0 +1,232 @@
+@import 'nib'
+
+vendor-prefixes = o ms moz webkit official
+azul=#2196f3 
+azul-light=#4dabf5 
+azul-dark=#1769aa
+rojo=#de0209 
+rojo-light=#e4343a 
+rojo-dark=#9b0106
+morado=#673ab7 
+morado-light=#8561c5 
+morado-dark=#482880
+amarillo=#ffea00 
+amarillo-light=#ffee33 
+amarillo-dark=#b2a300
+blanco=#ffffff
+gris=#efefef
+gris-light=#f2f2f2
+gris-dark=#a7a7a7
+negro=#5b5b5b
+
+body{
+    font-size: 14px
+}
+p{
+    color gris-dark
+}
+.ova-web {
+    background-color gris
+    padding-top: 70px
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+.navegacion-top {
+    background morado
+    position: fixed
+    top 0
+    left 0
+    right: 0
+    z-index: 100
+    box-shadow 0 2px 5px -1px rgba(0,0,0,0.2)
+    .navbar {
+        .navbar-brand{
+            color blanco
+        }
+        .navbar-nav{
+            .nav-item{
+                .nav-link{
+                    color: blanco
+                    position: relative
+                    transition: all 0.5s ease
+                    &:hover{
+                        opacity 0.5
+                        transition: all 0.5s ease
+                    }
+                }
+            }
+        }
+    }
+}
+.caja{
+    position relative
+    margin: 40px 0px 60px 0px
+    .caja-body{
+        position relative
+        z-index 2
+        background-color: blanco
+        padding: 50px 20px 20px 20px
+        outline blanco solid 10px
+        outline-offset: 0px
+        border 1px dashed morado
+    }
+    &:before
+    &:after{
+        z-index: 1;
+        position: absolute;
+        content: "";
+        left: 10px;
+        bottom: 4px
+        width: 50%;
+        height 40px
+        background: transparent;
+        box-shadow: 0 15px 10px rgba(gris-dark, 0.8);
+        transform: rotate(-5deg);
+    }
+    &:before{
+        transform: rotate(5deg);
+        right: 10px;
+        left: auto;
+    }
+    .avatar{
+        width: 90px
+        height 90px
+        border-radius: 45px
+        background-color: gris
+        position: absolute
+        top -45px
+        left: 50%
+        margin-left: -45px
+        border 4px solid blanco
+        justify-content: center
+        align-items: center
+        display: flex
+        box-shadow inset 0 0 2px 0px rgba(morado,0.05);
+        i{
+            font-size: 50px
+            color rgba(blanco, 1)
+        }
+        img{
+            width: auto
+            height 50px
+        }
+    }
+    &.caja-avatar{
+        padding-top: 60px
+    }
+    .sombra{
+        width: 100%
+        height 20px
+        position: absolute
+        bottom -33px
+        left 0
+    }
+    &.caja-lg{
+        &:before
+        &:after{
+            transform: rotate(-2deg);
+        }
+        &:before{
+            transform: rotate(2deg);
+        }
+    }
+}
+.form-group{
+    position: relative
+}
+.label{
+    color gris-dark
+    margin-bottom: 0px
+}
+.form-control{
+    border none
+    background-color: rgba(gris-dark, 0.3)
+    box-shadow inset 0px 0px 1px 0px rgba(0,0,0,0.05);
+    border-radius: 0px
+    color negro
+    font-size: 1em
+}
+.btn{
+    border-radius: 2px
+    border none
+    transition: all 0.5s ease
+    &.btn-primary{
+        background-color: rojo
+        &:hover{
+            background-color: rojo-dark
+            transition: all 0.5s ease
+        }
+        &.disabled{
+            background-color rojo-light
+            opacity 1
+            &:hover{
+                background-color: rojo-light
+            }
+        }
+    }
+    &.btn-secondary{
+        background-color: morado
+        &:hover{
+            background-color: morado-dark
+            transition: all 0.5s ease
+        }
+        &.disabled{
+            background-color morado-light
+            opacity 1
+            &:hover{
+                background-color: morado-light
+            }
+        }
+    }
+    &.btn-link{
+        color gris-dark
+        text-decoration: underline
+    }
+}
+.text-register{
+    color: gris-dark
+    text-align: center
+    margin-top: 20px
+    margin-bottom: 0px
+    .enlace{
+        color rojo-light
+    }
+}
+.footer{
+    position: fixed
+    bottom 0
+    left 50%
+    margin-left: -100px
+    width: 200px
+    padding: 7px
+    background-color: gris
+    .copy{
+        text-align: center
+        margin-bottom: 0px
+        color gris-dark
+        text-shadow: 1px 1px 0px rgba(blanco, 1)
+        .enlace{
+            color rojo
+        }
+    }
+}
+.picker{
+    div{
+        display: flex
+        &:before
+        &:after{
+            display none
+        }
+        input{
+            padding: .375rem .75rem
+            display: block
+            border none
+            background-color: rgba(gris-dark, 0.3)
+            box-shadow inset 0px 0px 1px 0px rgba(0,0,0,0.05);
+            border-radius: 0px
+            color negro
+            font-size: 0.9em
+            line-height: 1.5
+            width: 100%
+        }
+    }
+}
