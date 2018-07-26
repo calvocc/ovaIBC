@@ -7,6 +7,7 @@ import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
 import {DatePicker} from 'material-ui-pickers';
 import esLocale from 'date-fns/locale/es';
 import {format} from "date-fns";
+import uuid from 'uuid';
 
 import * as routes from '../constants/routes';
 import styles from '../utils/stylos.css'
@@ -28,6 +29,17 @@ const INITIAL_STATE = {
 	passwordTwo: '',
 	crearIglesia: false,
 	error: null,
+	IglesiaNombre: '',
+	IglesiaTelefono: '',
+	IglesiaDireccion: '',
+	IglesiaPastor: '',
+	IglesiaPais: '',
+	IglesiaCiudad: '',
+	Iglesias: null,
+	Paises: null,
+	Ciudades: null,
+	Confirmada: false,
+	errorIglesia: null,
 	windowHeight: 0,
 	windowWidth: 0
  };
@@ -47,10 +59,28 @@ class SignUpForm extends Component {
 	componentDidMount() {
 		this.handleResize();
 		window.addEventListener('resize', this.handleResize)
+		db.onGetIglesias().on('value', snapshot => {
+			this.setState({
+				Iglesias: snapshot.val()
+			})
+		})
+		db.onGetPaises().orderByChild('Estado').equalTo(1).on('value', snapshot => {
+			this.setState({
+				Paises: snapshot.val()
+			})
+		})
+		db.onGetCiudades().orderByChild('Estado').equalTo(1).on('value', snapshot => {
+			this.setState({
+				Ciudades: snapshot.val()
+			})
+		})
 	}
 
 	componentWillUnmount() {
 		window.removeEventListener('resize', this.handleResize)
+		db.onGetIglesias().off()
+		db.onGetPaises().off()
+		db.onGetCiudades().off()
 	}
 
 	handleResize = () => this.setState({
@@ -117,6 +147,38 @@ class SignUpForm extends Component {
 		event.preventDefault();
 	}
 
+	onSubmitIglesia = (event) => {
+		const {
+			IglesiaNombre,
+			IglesiaTelefono,
+			IglesiaDireccion,
+			IglesiaPastor,
+			IglesiaPais,
+			IglesiaCiudad,
+			Registro,
+			Confirmada
+		} = this.state;
+		
+		
+		db.doCreateIglesia( uuid.v4(), IglesiaNombre, IglesiaTelefono, IglesiaDireccion, IglesiaPastor, IglesiaPais, IglesiaCiudad, Registro, Confirmada)
+			.then(() => {
+				this.setState({ 
+					Iglesia: IglesiaNombre,
+					crearIglesia : !this.state.crearIglesia
+				});
+
+			})
+			.catch(error => {
+				this.setState(byPropKey({
+					'errorIglesia': error,
+					crearIglesia: !this.state.crearIglesia
+				}));
+			});
+			
+
+		event.preventDefault();
+	}
+
 	render() {
 		const {
 			Nombre,
@@ -129,6 +191,16 @@ class SignUpForm extends Component {
 			passwordOne,
 			passwordTwo,
 			error,
+			IglesiaNombre,
+			IglesiaTelefono,
+			IglesiaDireccion,
+			IglesiaPastor,
+			IglesiaPais,
+			IglesiaCiudad,
+			errorIglesia,
+			Iglesias,
+			Paises,
+			Ciudades
 		} = this.state;
 
 		const isInvalid =
@@ -137,7 +209,12 @@ class SignUpForm extends Component {
 			Email === '' ||
 			Nombre === '';
 
-		console.log(this.state)
+		const isInvalidIglesia = 
+			IglesiaNombre === '' || 
+			IglesiaTelefono === '' || 
+			IglesiaPastor === '';
+
+		console.log(Paises)
 
 		return (
 			<Container>
@@ -220,12 +297,8 @@ class SignUpForm extends Component {
 													onChange={ this.changeIglesia }
 												>
 													<option value="">-- Seleccionar Congregación --</option>
-													<option>ICC Dulce Refugio (Madrid)</option>
-													<option>ICC Santa Rosita</option>
-													<option>ICC Patio Bonito</option>
-													<option>ICC Facatativa</option>
-													<option>ICC Mosquera</option>
-													<option>Otra</option>
+													{!!Iglesias && <IglesiasOption Iglesias={Iglesias} />}
+													<option value="Otra">Otra</option>
 												</Input>
 											</FormGroup>
 										</Col>
@@ -303,14 +376,108 @@ class SignUpForm extends Component {
 
 						</div>
 
-						<Modal isOpen={this.state.crearIglesia} toggle={this.toggle} className={this.props.className}>
-							<ModalHeader toggle={this.toggle}>Modal title</ModalHeader>
+						<Modal isOpen={this.state.crearIglesia} toggle={this.toggle} className="ova-modal">
+							<div className="titulo-flex">
+								<div className="espacios"></div>
+								<ModalHeader>Agregar Iglesia</ModalHeader>
+								<div className="espacios"></div>
+							</div>
 							<ModalBody>
-								Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+								<p className="text-center">Ingrese los datos a continuacion para agregar una iglesia.</p>
+								<form >
+									<Row>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesiaNombre">Nombre de la congregación <span className="texto-danger">*</span></Label>
+												<Input
+													value={IglesiaNombre}
+													onChange={event => this.setState(byPropKey('IglesiaNombre', event.target.value))}
+													type="text"
+													name = "IglesiaNombre"
+													id="inputIglesiaNombre"
+													placeholder="Nombre de la congregación..." />
+											</FormGroup>
+										</Col>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesiaTelefono">Telefono <span className="texto-danger">*</span></Label>
+												<Input
+													value={IglesiaTelefono}
+													onChange={event => this.setState(byPropKey('IglesiaTelefono', event.target.value))}
+													type="text"
+													name="IglesiaTelefono"
+													id="inputIglesiaTelefono"
+													placeholder="Telefono..." />
+											</FormGroup>
+										</Col>
+									</Row>
+									<Row>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesiaDireccion"> Dirección </Label>
+												<Input
+													value={IglesiaDireccion}
+													onChange={event => this.setState(byPropKey('IglesiaDireccion', event.target.value))}
+													type="text"
+													name="IglesiaDireccion"
+													id="inputIglesiaDireccion"
+													placeholder="Dirección..." />
+											</FormGroup>
+										</Col>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesiaPastor">Pastor General <span className="texto-danger">*</span></Label>
+												<Input
+													value={IglesiaPastor}
+													onChange={event => this.setState(byPropKey('IglesiaPastor', event.target.value))}
+													type="text"
+													name="IglesiaPastor"
+													id="inputIglesiaPastor"
+													placeholder="Nombre del pastor..." />
+											</FormGroup>
+										</Col>
+									</Row>
+									<Row>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesia">País</Label>
+												<Input
+													value={IglesiaPais}
+													type="select"
+													name="IglesiaPais"
+													id="inputIglesiaPais"
+													placeholder="País..."
+													onChange={event => this.setState(byPropKey('IglesiaPais', event.target.value))}
+												>
+													<option value="">-- Seleccionar País --</option>
+													{!!Paises && <PaisesOption Paises={Paises} />}
+												</Input>
+											</FormGroup>
+										</Col>
+										<Col xs="12" sm="12" md="12" lg="12">
+											<FormGroup>
+												<Label className="label" for="inputIglesiaCiudad">Ciudad</Label>
+												<Input
+													value={IglesiaCiudad}
+													type="select"
+													name="IglesiaCiudad"
+													id="inputIglesiaCiudad"
+													placeholder="IglesiaCiudad..."
+													onChange={event => this.setState(byPropKey('IglesiaCiudad', event.target.value))}
+												>
+													<option value="">-- Seleccionar Ciudad --</option>
+													{!!Ciudades && <CiudadesOption Ciudades={Ciudades} />}
+												</Input>
+											</FormGroup>
+										</Col>
+									</Row>
+
+									{errorIglesia && <p>{errorIglesia.message}</p>}
+								</form>
 							</ModalBody>
 							<ModalFooter>
-								<Button color="primary" onClick={this.toggle}>Do Something</Button>{' '}
-								<Button color="secondary" onClick={this.toggle}>Cancel</Button>
+								<Button color="secondary" onClick={this.onSubmitIglesia} disabled={isInvalidIglesia}>Agregar</Button>{' '}
+								<Button color="primary" onClick={this.toggle}>Cancelar</Button>
 							</ModalFooter>
 						</Modal>
 
@@ -320,6 +487,11 @@ class SignUpForm extends Component {
 		);
 	}
 }
+
+const IglesiasOption = ({ Iglesias }) => Object.keys(Iglesias).map(key => <option key={key}>{Iglesias[key].Nombre}</option>)
+const PaisesOption = ({ Paises }) =>  Object.keys(Paises).map(key => <option key={key}>{Paises[key].Nombre}</option>)
+const CiudadesOption = ({ Ciudades }) =>  Object.keys(Ciudades).map(key => <option key={key}>{Ciudades[key].Nombre}</option>)
+
 
 const SignUpLink = () =>
 	<p className="text-register">

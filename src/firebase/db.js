@@ -3,7 +3,7 @@ import { db } from './firebase';
 // User API
 
 export const doCreateUser = (id, Nombre, Apellidos, Telefono, Email, Nacimiento, Registro, Rol) =>
-	db.ref(`users/${id}`).set({
+	db.ref(`Usuarios/${id}`).set({
 		Nombre,
 		Apellidos,
 		Telefono,
@@ -14,9 +14,54 @@ export const doCreateUser = (id, Nombre, Apellidos, Telefono, Email, Nacimiento,
 	});
 
 export const onGetUsers = (id) =>
-	db.ref(`users/${id}`).once('value');
+	db.ref(`Usuarios/${id}`).once('value');
 
 export const onceGetUsers = () =>
-	db.ref('users').once('value');
+	db.ref('Usuarios').once('value');
 
-// Other Entity APIs ...
+
+// Iglesias API
+export const doCreateIglesia = (Id, Nombre, Telefono, Direccion, Pastor, Pais, Ciudad, Registro, Confirmada) => 
+	db.ref(`Iglesias/${Id}`).set({
+		Nombre, 
+		Telefono, 
+		Direccion, 
+		Pastor, 
+		Pais, 
+		Ciudad, 
+		Registro,
+		Confirmada
+	})
+
+export const onGetIglesia = (id) =>
+	db.ref(`Iglesias/${id}`).once('value');
+
+export const onGetIglesias = () =>
+	db.ref('Iglesias/')
+
+
+// Locaciones APIs
+export const doCreatePais = (Id, Nombre, Estado) =>
+	db.ref(`Paises/${Id}`).set({
+		Nombre,
+		Estado
+	})
+
+export const onGetPais = (id) =>
+	db.ref(`Paises/${id}`).once('value');
+
+export const onGetPaises = () =>
+	db.ref('Paises/')
+
+export const doCreateCiudad = (Id, Nombre, Pais, Estado) =>
+	db.ref(`Ciudades/${Id}`).set({
+		Nombre,
+		Pais,
+		Estado
+	})
+
+export const onGetCiudad = (id) =>
+	db.ref(`Ciudades/${id}`).once('value');
+
+export const onGetCiudades = () =>
+	db.ref('Ciudades/')

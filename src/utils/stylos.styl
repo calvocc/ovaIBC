@@ -230,3 +230,73 @@ p{
         }
     }
 }
+.modal{
+    .ova-modal{
+        margin-top: 100px
+        .modal-content{
+            position relative
+            border-radius: 0px
+            outline blanco solid 10px
+            outline-offset: 0px
+            border 1px dashed morado
+            background-clip: border-box
+            .titulo-flex{
+                display: flex
+                flex-direction: row
+                .espacios{
+                    flex: 1
+                    padding: 0px 20px
+                }
+                .modal-header{
+                    border-top-left-radius: 0
+                    border-top-right-radius: 0
+                    margin-top: -20px
+                    margin-bottom: 10px
+                    position relative
+                    border none
+                    padding: 0
+                    z-index 100
+                    .modal-title{
+                        position relative
+                        padding: 8px 20px 5px 20px
+                        z-index 2
+                        color morado
+                        font-weight: bold
+                        background-color: blanco
+                        outline blanco solid 8px
+                        outline-offset: 0px
+                        border-top 1px dashed morado
+                        border-left 1px dashed morado
+                        border-right 1px dashed morado
+                    }
+                    &:before
+                    &:after{
+                        z-index: 1;
+                        position: absolute;
+                        content: "";
+                        left: 0px;
+                        bottom: 0px
+                        width: 20px;
+                        height 70%
+                        background: transparent;
+                        box-shadow: -10px 0px 8px rgba(gris-dark, 0.8);
+                        transform: rotate(-12deg);
+                    }
+                    &:before{
+                        box-shadow: 10px 0px 8px rgba(gris-dark, 0.8);
+                        transform: rotate(12deg);
+                        right: 0px;
+                        left: auto;
+                    }
+                }
+            }
+            .modal-footer{
+                border-radius: 0px
+                border none
+            }
+        }
+    }
+}
+.texto-danger{
+    color: rojo !important
+}
