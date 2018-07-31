@@ -44,14 +44,21 @@ p{
         }
         .navbar-nav{
             .nav-item{
+                position relative
+                padding-left: 20px
+                padding-right: 20px
                 .nav-link{
                     color: blanco
+                    text-shadow: 1px 1px 0 rgba(negro, 0.5)
                     position: relative
                     transition: all 0.5s ease
                     &:hover{
                         opacity 0.5
                         transition: all 0.5s ease
                     }
+                }
+                .dropdown-item{
+                    cursor: pointer
                 }
             }
         }
@@ -60,11 +67,62 @@ p{
 .caja{
     position relative
     margin: 40px 0px 60px 0px
+    .titulo-flex{
+        display: flex
+        flex-direction: row
+        margin-bottom: 30px
+        .espacios{
+            flex: 1
+            padding: 0px 20px
+        }
+        .modal-header{
+            border-top-left-radius: 0
+            border-top-right-radius: 0
+            margin-top: -20px
+            margin-bottom: 10px
+            position relative
+            border none
+            padding: 0
+            z-index 100
+            .modal-title{
+                position relative
+                padding: 8px 20px 5px 20px
+                z-index 2
+                color morado
+                font-weight: bold
+                background-color: blanco
+                outline blanco solid 8px
+                outline-offset: 0px
+                border-top 1px dashed morado
+                border-left 1px dashed morado
+                border-right 1px dashed morado
+            }
+            &:before
+            &:after{
+                z-index: 1;
+                position: absolute;
+                content: "";
+                left: 0px;
+                bottom: 0px
+                width: 20px;
+                height 70%
+                background: transparent;
+                box-shadow: -10px 0px 8px rgba(gris-dark, 0.8);
+                transform: rotate(-12deg);
+            }
+            &:before{
+                box-shadow: 10px 0px 8px rgba(gris-dark, 0.8);
+                transform: rotate(12deg);
+                right: 0px;
+                left: auto;
+            }
+        }
+    }
     .caja-body{
         position relative
         z-index 2
         background-color: blanco
-        padding: 50px 20px 20px 20px
+        padding: 0px 20px 20px 20px
         outline blanco solid 10px
         outline-offset: 0px
         border 1px dashed morado
@@ -132,6 +190,24 @@ p{
 }
 .form-group{
     position: relative
+    input{
+        width: 100%
+        border none
+        background-color: rgba(gris-dark, 0.3)
+        box-shadow inset 0px 0px 1px 0px rgba(0,0,0,0.05);
+        border-radius: 0px
+        color negro
+        font-size: 1em
+        padding: .375rem .75rem;
+        line-height: 1.5;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    }
+    .itemSelect{
+        flex: 1
+        border-bottom: 1px solid gris-light
+        padding: 8px
+        cursor: pointer
+    }
 }
 .label{
     color gris-dark

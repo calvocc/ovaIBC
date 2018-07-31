@@ -69,8 +69,12 @@ class PasswordForgetForm extends Component {
 					<Col xs="12" sm="8" md="8" lg="5" style={{marginTop: -30,}}>
 						<div className="caja caja-avatar">
 							<div className="caja-body">
-								<div className="avatar">
-									<img src={logo} />
+								<div className="titulo-flex">
+									<div className="espacios"></div>
+									<div className="modal-header">
+										<h5 className="modal-title">Recuperar Contraseña</h5>
+									</div>
+									<div className="espacios"></div>
 								</div>
 								<p>Ingrese su email y le enviaremos un correo a su bandeja de entrada con las instrucciones a seguir.</p>
 								<form onSubmit={this.onSubmit}>

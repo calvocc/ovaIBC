@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { Container, Row, Col, Button, Form, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Container, Row, Col, Button, FormGroup, Label, Input, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { auth, db } from '../firebase';
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider';
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils';
@@ -8,10 +8,9 @@ import {DatePicker} from 'material-ui-pickers';
 import esLocale from 'date-fns/locale/es';
 import {format} from "date-fns";
 import uuid from 'uuid';
+import Autocomplete from 'react-autocomplete';
 
 import * as routes from '../constants/routes';
-import styles from '../utils/stylos.css'
-import logo from '../utils/img/LogoSimbolo-drapp.png'
 
 const SignUpPage = ({ history }) => <SignUpForm history={history} />
 
@@ -21,8 +20,11 @@ const INITIAL_STATE = {
 	Telefono: '',
 	Email: '',
 	Iglesia: '',
+	OptionsIglesias: [],
+	selectIglesia: '',
 	Cargo: '',
-	Nacimiento: new Date(),
+	OptionsCargo: [{ value: 'Pastor', label: 'Pastor' }, { value: 'Co-Pastor', label: 'Co-Pastor' }, { value: 'Lider', label: 'Lider' }, { value: 'Maestro', label: 'Maestro' }, { value: 'Alabanza', label: 'Alabanza' }, { value: 'Servidor', label: 'Servidor' }, { value: 'Miembro', label: 'Miembro' }, { value: 'Invitado', label: 'Invitado' }, { value: 'Otro', label: 'Otro' }],
+	Nacimiento: null,
 	Registro: format(new Date(), 'MM/DD/YYYY'),
 	Rol: 0,
 	passwordOne: '',
@@ -35,9 +37,10 @@ const INITIAL_STATE = {
 	IglesiaPastor: '',
 	IglesiaPais: '',
 	IglesiaCiudad: '',
-	Iglesias: null,
 	Paises: null,
+	OptionsPaises: [],
 	Ciudades: null,
+	OptionsCiudades: [],
 	Confirmada: false,
 	errorIglesia: null,
 	windowHeight: 0,
@@ -54,25 +57,59 @@ class SignUpForm extends Component {
 
 		this.state = { ...INITIAL_STATE };
 		this.toggle = this.toggle.bind(this);
+		this.changeIglesia = this.changeIglesia.bind(this);
+		this.addIglesias = this.addIglesias.bind(this);
+		this.addPaises = this.addPaises.bind(this);
+		this.addCiudades = this.addCiudades.bind(this);
 	}
 
 	componentDidMount() {
 		this.handleResize();
 		window.addEventListener('resize', this.handleResize)
-		db.onGetIglesias().on('value', snapshot => {
-			this.setState({
-				Iglesias: snapshot.val()
-			})
+		db.onGetIglesias().on('value', this.addIglesias)
+		db.onGetPaises().orderByChild('Estado').equalTo(1).on('value', this.addPaises)
+		db.onGetCiudades().orderByChild('Estado').equalTo(1).on('value', this.addCiudades)
+	}
+
+	addIglesias = (data) => {
+		const items = [{value: 'Otra', label: 'Otra'}];
+		data.forEach(dataItem => {
+			const item = dataItem.val();
+			const dataOptions = {
+				value: item.Nombre, label: item.Nombre
+			}
+			items.push(dataOptions);
 		})
-		db.onGetPaises().orderByChild('Estado').equalTo(1).on('value', snapshot => {
-			this.setState({
-				Paises: snapshot.val()
-			})
+		this.setState({
+			OptionsIglesias: items
 		})
-		db.onGetCiudades().orderByChild('Estado').equalTo(1).on('value', snapshot => {
-			this.setState({
-				Ciudades: snapshot.val()
-			})
+	}
+
+	addPaises = (data) => {
+		const items = [];
+		data.forEach(dataItem => {
+			const item = dataItem.val();
+			const dataOptions = {
+				value: item.Nombre, label: item.Nombre
+			}
+			items.push(dataOptions);
+		})
+		this.setState({
+			OptionsPaises: items
+		})
+	}
+
+	addCiudades = (data) => {
+		const items = [];
+		data.forEach(dataItem => {
+			const item = dataItem.val();
+			const dataOptions = {
+				value: item.Nombre, label: item.Nombre
+			}
+			items.push(dataOptions);
+		})
+		this.setState({
+			OptionsCiudades: items
 		})
 	}
 
@@ -92,14 +129,14 @@ class SignUpForm extends Component {
 		this.setState({ Nacimiento: format(date, 'MM/DD/YYYY') });
 	}
 
-	changeIglesia = (event) =>{
-		if (event.target.value === "Otra"){
+	changeIglesia = (val) => {
+		if (val === "Otra") {
 			this.setState({
 				crearIglesia: true,
 			})
 		} else {
 			this.setState({
-				Iglesia: event.target.value
+				Iglesia: val
 			})
 		}
 	}
@@ -198,23 +235,27 @@ class SignUpForm extends Component {
 			IglesiaPais,
 			IglesiaCiudad,
 			errorIglesia,
-			Iglesias,
-			Paises,
-			Ciudades
+			OptionsIglesias,
+			OptionsCargo,
+			OptionsPaises,
+			OptionsCiudades
 		} = this.state;
 
 		const isInvalid =
 			passwordOne !== passwordTwo ||
 			passwordOne === '' ||
 			Email === '' ||
-			Nombre === '';
+			Nombre === '' ||
+			Apellidos === '' ||
+			Telefono === '' ||
+			Iglesia === '' ||
+			Cargo === '' ||
+			Nacimiento === '';
 
 		const isInvalidIglesia = 
 			IglesiaNombre === '' || 
 			IglesiaTelefono === '' || 
 			IglesiaPastor === '';
-
-		console.log(Paises)
 
 		return (
 			<Container>
@@ -222,44 +263,46 @@ class SignUpForm extends Component {
 					<Col xs="12" sm="12" md="12" lg="12" style={{ marginTop: -30, }}>
 						<div className="caja caja-avatar caja-lg">
 							<div className="caja-body">
-								<div className="avatar">
-									{ /* <i class="fas fa-user-graduate"></i> */}
-									<img src={logo} />
+								<div className="titulo-flex">
+									<div className="espacios"></div>
+									<div className="modal-header">
+										<h5 className="modal-title">Registro de Usuarios</h5>
+									</div>
+									<div className="espacios"></div>
 								</div>
-								<p className="text-center">Ingrese sus datos para registrarse al sistema, recuerde que la iglesia de la que es miembro debe confirmar su registro.</p>
+								
+								<p className="text-center">Ingrese sus datos para hacer parte del Instituto Virtual Cuadrangular </p>
 								
 								
 								<form onSubmit={this.onSubmit}>
 									<Row>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputNombre">Nombres</Label>
+												<Label className="label" for="inputNombre">Nombre  <span className="texto-danger">*</span></Label>
 												<Input
 													value={Nombre}
 													onChange={event => this.setState(byPropKey('Nombre', event.target.value))}
 													type="text"
 													name="Nombre"
-													id="inputNombre"
-													placeholder="Nombre..." />
+													id="inputNombre" />
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputApellidos">Apellidos</Label>
+												<Label className="label" for="inputApellidos">Apellidos  <span className="texto-danger">*</span></Label>
 												<Input
 													value={Apellidos}
 													onChange={event => this.setState(byPropKey('Apellidos', event.target.value))}
 													type="text"
 													name="Apellidos"
-													id="inputApellidos"
-													placeholder="Apellidos..." />
+													id="inputApellidos" />
 											</FormGroup>
 										</Col>
 									</Row>
 									<Row>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputNacimiento">Fecha de nacimiento</Label>
+												<Label className="label" for="inputNacimiento">Fecha de nacimiento  <span className="texto-danger">*</span></Label>
 												<MuiPickersUtilsProvider utils={DateFnsUtils} locale={esLocale}>
 													<div className="picker">
 														<DatePicker
@@ -273,94 +316,114 @@ class SignUpForm extends Component {
 										</Col>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputTelefono">Telefono</Label>
+												<Label className="label" for="inputTelefono">Telefono  <span className="texto-danger">*</span></Label>
 												<Input
 													value={Telefono}
 													onChange={event => this.setState(byPropKey('Telefono', event.target.value))}
 													type="text"
 													name="Telefono"
-													id="inputTelefono"
-													placeholder="Telefono..." />
+													id="inputTelefono" />
 											</FormGroup>
 										</Col>
 									</Row>
 									<Row>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputIglesia">Congregacion</Label>
-												<Input 
+												<Label className="label" for="inputIglesia">Congregacion  <span className="texto-danger">*</span></Label>
+												<Autocomplete
 													value={Iglesia}
-													type="select" 
-													name="Iglesia" 
-													id="inputIglesia" 
-													placeholder="Iglesia..."
-													onChange={ this.changeIglesia }
-												>
-													<option value="">-- Seleccionar Congregación --</option>
-													{!!Iglesias && <IglesiasOption Iglesias={Iglesias} />}
-													<option value="Otra">Otra</option>
-												</Input>
+													wrapperStyle={{display: 'flex', flex: 1, flexDirection: 'column', position: 'relative'}}
+													menuStyle={{
+														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+														background: 'rgba(255, 255, 255, 0.9)',
+														padding: '2px 0',
+														overflow: 'auto',
+														maxHeight: '200px',
+														position: 'absolute',
+														top: '100%',
+														left: '0px',
+														rigth: '0px',
+														zIndex: 5
+													}}
+													getItemValue={(item) => item.label}
+													items={OptionsIglesias}
+													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+													renderItem={(item, isHighlighted) =>
+														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+															{item.label}
+														</div>
+													}
+													onChange={(event, value) => this.setState({ Iglesia: value })}
+													onSelect={this.changeIglesia}
+												/>
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputCargo">Cargo</Label>
-												<Input
+												<Label className="label" for="inputCargo">Cargo  <span className="texto-danger">*</span></Label>
+												<Autocomplete
 													value={Cargo}
-													type="select"
-													name="Cargo"
-													id="inputCargo"
-													placeholder="Cargo..."
-													onChange={event => this.setState(byPropKey('Cargo', event.target.value))}
-												>
-													<option value="">-- Seleccionar Cargo --</option>
-													<option>Invitado</option>
-													<option>Miembro</option>
-													<option>Servidor</option>
-													<option>Lider</option>
-													<option>Pastor</option>
-													<option>Otro</option>
-												</Input>
+													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
+													menuStyle={{
+														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+														background: 'rgba(255, 255, 255, 0.9)',
+														padding: '2px 0',
+														overflow: 'auto',
+														maxHeight: '200px',
+														position: 'absolute',
+														top: '100%',
+														left: '0px',
+														rigth: '0px',
+														zIndex: 5
+													}}
+													getItemValue={(item) => item.label}
+													items={OptionsCargo}
+													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+													renderItem={(item, isHighlighted) =>
+														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+															{item.label}
+														</div>
+													}
+													onChange={(event, value) => this.setState({ Cargo: value })}
+													onSelect={val => this.setState({ Cargo: val})}
+												/>
 											</FormGroup>
 										</Col>
 									</Row>
 									<Row>
 										<Col xs="12" sm="12" md="12" lg="12">
 											<FormGroup>
-												<Label className="label" for="inputEmail">Email</Label>
+												<Label className="label" for="inputEmail">Email  <span className="texto-danger">*</span></Label>
 												<Input
 													value={Email}
 													onChange={event => this.setState(byPropKey('Email', event.target.value))}
 													type="email"
 													name="Email"
-													id="inputEmail"
-													placeholder="Email..." />
+													id="inputEmail" />
 											</FormGroup>
 										</Col>
 									</Row>
 									<Row>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputPass">Contraseña</Label>
+												<Label className="label" for="inputPass">Contraseña  <span className="texto-danger">*</span></Label>
 												<Input
 													value={passwordOne}
 													onChange={event => this.setState(byPropKey('passwordOne', event.target.value))}
 													type="password"
 													name="passwordOne"
-													id="inputPass"
-													placeholder="Contraseña..." />
+													id="inputPass" />
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="6" md="6" lg="6">
 											<FormGroup>
-												<Label className="label" for="inputPassTwo">Confirmar contraseña</Label>
+												<Label className="label" for="inputPassTwo">Confirmar contraseña  <span className="texto-danger">*</span></Label>
 												<Input
 													value={passwordTwo}
 													onChange={event => this.setState(byPropKey('passwordTwo', event.target.value))}
 													type="password"
 													name="passwordTwo"
-													id="inputPassTwo"
-													placeholder="Confirmar contraseña..." />
+													id="inputPassTwo" />
 											</FormGroup>
 										</Col>
 									</Row>
@@ -394,8 +457,7 @@ class SignUpForm extends Component {
 													onChange={event => this.setState(byPropKey('IglesiaNombre', event.target.value))}
 													type="text"
 													name = "IglesiaNombre"
-													id="inputIglesiaNombre"
-													placeholder="Nombre de la congregación..." />
+													id="inputIglesiaNombre" />
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="12" md="12" lg="12">
@@ -406,8 +468,7 @@ class SignUpForm extends Component {
 													onChange={event => this.setState(byPropKey('IglesiaTelefono', event.target.value))}
 													type="text"
 													name="IglesiaTelefono"
-													id="inputIglesiaTelefono"
-													placeholder="Telefono..." />
+													id="inputIglesiaTelefono" />
 											</FormGroup>
 										</Col>
 									</Row>
@@ -420,8 +481,7 @@ class SignUpForm extends Component {
 													onChange={event => this.setState(byPropKey('IglesiaDireccion', event.target.value))}
 													type="text"
 													name="IglesiaDireccion"
-													id="inputIglesiaDireccion"
-													placeholder="Dirección..." />
+													id="inputIglesiaDireccion" />
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="12" md="12" lg="12">
@@ -432,8 +492,7 @@ class SignUpForm extends Component {
 													onChange={event => this.setState(byPropKey('IglesiaPastor', event.target.value))}
 													type="text"
 													name="IglesiaPastor"
-													id="inputIglesiaPastor"
-													placeholder="Nombre del pastor..." />
+													id="inputIglesiaPastor" />
 											</FormGroup>
 										</Col>
 									</Row>
@@ -441,33 +500,63 @@ class SignUpForm extends Component {
 										<Col xs="12" sm="12" md="12" lg="12">
 											<FormGroup>
 												<Label className="label" for="inputIglesia">País</Label>
-												<Input
+												<Autocomplete
 													value={IglesiaPais}
-													type="select"
-													name="IglesiaPais"
-													id="inputIglesiaPais"
-													placeholder="País..."
-													onChange={event => this.setState(byPropKey('IglesiaPais', event.target.value))}
-												>
-													<option value="">-- Seleccionar País --</option>
-													{!!Paises && <PaisesOption Paises={Paises} />}
-												</Input>
+													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
+													menuStyle={{
+														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+														background: 'rgba(255, 255, 255, 0.9)',
+														padding: '2px 0',
+														overflow: 'auto',
+														maxHeight: '200px',
+														position: 'absolute',
+														top: '100%',
+														left: '0px',
+														rigth: '0px',
+														zIndex: 5
+													}}
+													getItemValue={(item) => item.label}
+													items={OptionsPaises}
+													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+													renderItem={(item, isHighlighted) =>
+														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+															{item.label}
+														</div>
+													}
+													onChange={(event, value) => this.setState({ IglesiaPais: value })}
+													onSelect={val => this.setState({ IglesiaPais: val })}
+												/>
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="12" md="12" lg="12">
 											<FormGroup>
 												<Label className="label" for="inputIglesiaCiudad">Ciudad</Label>
-												<Input
+												<Autocomplete
 													value={IglesiaCiudad}
-													type="select"
-													name="IglesiaCiudad"
-													id="inputIglesiaCiudad"
-													placeholder="IglesiaCiudad..."
-													onChange={event => this.setState(byPropKey('IglesiaCiudad', event.target.value))}
-												>
-													<option value="">-- Seleccionar Ciudad --</option>
-													{!!Ciudades && <CiudadesOption Ciudades={Ciudades} />}
-												</Input>
+													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
+													menuStyle={{
+														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+														background: 'rgba(255, 255, 255, 0.9)',
+														padding: '2px 0',
+														overflow: 'auto',
+														maxHeight: '200px',
+														position: 'absolute',
+														top: '100%',
+														left: '0px',
+														rigth: '0px',
+														zIndex: 5
+													}}
+													getItemValue={(item) => item.label}
+													items={OptionsCiudades}
+													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+													renderItem={(item, isHighlighted) =>
+														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+															{item.label}
+														</div>
+													}
+													onChange={(event, value) => this.setState({ IglesiaCiudad: value })}
+													onSelect={val => this.setState({ IglesiaCiudad: val })}
+												/>
 											</FormGroup>
 										</Col>
 									</Row>
@@ -476,8 +565,9 @@ class SignUpForm extends Component {
 								</form>
 							</ModalBody>
 							<ModalFooter>
-								<Button color="secondary" onClick={this.onSubmitIglesia} disabled={isInvalidIglesia}>Agregar</Button>{' '}
 								<Button color="primary" onClick={this.toggle}>Cancelar</Button>
+								{' '}
+								<Button color="secondary" onClick={this.onSubmitIglesia} disabled={isInvalidIglesia}>Agregar</Button>
 							</ModalFooter>
 						</Modal>
 
@@ -487,10 +577,6 @@ class SignUpForm extends Component {
 		);
 	}
 }
-
-const IglesiasOption = ({ Iglesias }) => Object.keys(Iglesias).map(key => <option key={key}>{Iglesias[key].Nombre}</option>)
-const PaisesOption = ({ Paises }) =>  Object.keys(Paises).map(key => <option key={key}>{Paises[key].Nombre}</option>)
-const CiudadesOption = ({ Ciudades }) =>  Object.keys(Ciudades).map(key => <option key={key}>{Ciudades[key].Nombre}</option>)
 
 
 const SignUpLink = () =>

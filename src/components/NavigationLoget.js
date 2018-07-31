@@ -1,87 +1,88 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import Button from '@material-ui/core/Button';
+import {
+	Collapse,
+	Navbar,
+	NavbarToggler,
+	NavbarBrand,
+	Nav,
+	NavItem,
+	NavLink,
+	UncontrolledDropdown,
+	DropdownToggle,
+	DropdownMenu,
+	DropdownItem
+} from 'reactstrap';
+import { auth } from '../firebase/firebase';
+import { db } from '../firebase';
 
 import * as routes from '../constants/routes';
-import styles from '../utils/stylos.css'
 import SignOutButton from './SignOut'
 
 class MenuAppBar extends React.Component {
-	state = {
-		auth: true,
-		anchorEl: null,
-	};
+	constructor(props) {
+		super(props);
+		this.state = {
+			users: null,
+		};
+	}
 
-	handleMenu = event => {
-		this.setState({ anchorEl: event.currentTarget });
-	};
-
-	handleClose = () => {
-		this.setState({ anchorEl: null });
-	};
+	componentDidMount() {
+		auth.onAuthStateChanged( User => {
+			if (User){
+				console.log(User.uid)
+				db.onGetUsers(User.uid).then(snapshot =>
+					this.setState(() => ({ users: snapshot.val().Nombre }))
+				);
+			}
+		})
+	}
 
 	render() {
-		const { classes } = this.props;
-		const { anchorEl } = this.state;
-		const open = Boolean(anchorEl);
-
 		return (
-			<div className={classes.root}>
-				<AppBar position="static">
-					<Toolbar>
-						<Typography variant="title" color="inherit" className={classes.flex}>
-							IBC
-						</Typography>
-						<div>
-                            <Button color="inherit" component={Link} to={routes.INICIO}>Cursos</Button>
-                            <Button color="inherit" component={Link} to={routes.LANDING}>Actividad</Button>
-                            <Button color="inherit" component={Link} to={routes.INICIO}>Glosario</Button>
-                            <Button color="inherit" component={Link} to={routes.INICIO}>Foro</Button>
-                            <Button color="inherit" component={Link} to={routes.INICIO}>Repositorio</Button>
-							<IconButton
-								aria-owns={open ? 'menu-appbar' : null}
-								aria-haspopup="true"
-								onClick={this.handleMenu}
-								color="inherit"
-							>
-								<AccountCircle />
-							</IconButton>
-							<Menu
-								id="menu-appbar"
-								anchorEl={anchorEl}
-								anchorOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								transformOrigin={{
-									vertical: 'top',
-									horizontal: 'right',
-								}}
-								open={open}
-								onClose={this.handleClose}
-							>
-								<MenuItem onClick={this.handleClose}>Perfil</MenuItem>
-								<SignOutButton />
-							</Menu>
-						</div>
-					</Toolbar>
-				</AppBar>
+			<div className="navegacion-top">
+				<Navbar expand="md" >
+					<NavbarBrand tag={Link} to={routes.LANDING}>IVC</NavbarBrand>
+					<NavbarToggler onClick={this.toggle} />
+					<Collapse isOpen={this.state.isOpen} navbar>
+						<Nav className="ml-auto" navbar>
+							<NavItem>
+								<NavLink tag={Link} to={routes.INICIO}>Cursos</NavLink>
+							</NavItem>
+							<NavItem>
+								<NavLink tag={Link} to={routes.LANDING}>Actividad</NavLink>
+							</NavItem>
+							<NavItem>
+								<NavLink tag={Link} to={routes.INICIO}>Glosario</NavLink>
+							</NavItem>
+							<NavItem>
+								<NavLink tag={Link} to={routes.INICIO}>Foro</NavLink>
+							</NavItem>
+							<NavItem>
+								<NavLink tag={Link} to={routes.INICIO}>Repositorio</NavLink>
+							</NavItem>
+							<UncontrolledDropdown nav inNavbar>
+								<DropdownToggle nav caret>
+									{this.state.users}
+								</DropdownToggle>
+								<DropdownMenu right>
+									<DropdownItem tag={Link} to={routes.INICIO}>
+										Option 1
+									</DropdownItem>
+									<DropdownItem tag={Link} to={routes.INICIO}>
+										Option 2
+									</DropdownItem>
+									<DropdownItem divider />
+									<SignOutButton />
+								</DropdownMenu>
+							</UncontrolledDropdown>
+						</Nav>
+					</Collapse>
+				</Navbar>
 			</div>
 		);
+
 	}
 }
 
-MenuAppBar.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(MenuAppBar);
+export default MenuAppBar;

@@ -9,10 +9,6 @@ import {
 	Nav,
 	NavItem,
 	NavLink,
-	UncontrolledDropdown,
-	DropdownToggle,
-	DropdownMenu,
-	DropdownItem
 } from 'reactstrap';
 
 
@@ -29,7 +25,7 @@ class NavigationNotLoget extends React.Component {
 		return (
 			<div className="navegacion-top">
 				<Navbar expand="md" >
-					<NavbarBrand tag={Link} to={routes.LANDING}>IBC</NavbarBrand>
+					<NavbarBrand tag={Link} to={routes.LANDING}>IVC</NavbarBrand>
 					<NavbarToggler onClick={this.toggle} />
 					<Collapse isOpen={this.state.isOpen} navbar>
 						<Nav className="ml-auto" navbar>

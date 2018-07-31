@@ -1,15 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Container, Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import Icon from '@material-ui/core/Icon';
 
 import { PasswordForgetLink } from './PasswordForget';
 import { SignUpLink } from './SignUp';
 import { auth } from '../firebase';
 import * as routes from '../constants/routes';
 
-import styles from '../utils/stylos.css'
-import logo from '../utils/img/LogoSimbolo-drapp.png'
 
 const SignInPage = ({ history }) => <SignInForm history={history} />
 
@@ -21,8 +18,8 @@ const INITIAL_STATE = {
 	email: '',
 	password: '',
 	error: null,
-	windowHeight: undefined,
-	windowWidth: undefined
+	windowHeight: 0,
+	windowWidth: 0
 };
 
 class SignInForm extends Component {
@@ -85,9 +82,12 @@ class SignInForm extends Component {
 					<Col xs="12" sm="8" md="8" lg="5" style={{ marginTop: -30, }}>
 						<div className="caja caja-avatar">
 							<div className="caja-body">
-								<div className="avatar">
-									{ /* <i class="fas fa-user-graduate"></i> */}
-									<img src={logo} />
+								<div className="titulo-flex">
+									<div className="espacios"></div>
+									<div className="modal-header">
+										<h5 className="modal-title">Ingreso Seguro</h5>
+									</div>
+									<div className="espacios"></div>
 								</div>
 								<p className="text-center">Ingrese su datos para entrar al sistema.</p >
 								<Form onSubmit={this.onSubmit}>
@@ -98,8 +98,7 @@ class SignInForm extends Component {
 											onChange={event => this.setState(byPropKey('email', event.target.value))}
 											type="email" 
 											name="email"
-											id="inputEmail"
-											placeholder="Email..." />
+											id="inputEmail" />
 									</FormGroup>
 									<FormGroup>
 										<Label className="label" for="inputPass">Contraseña</Label>
@@ -108,8 +107,7 @@ class SignInForm extends Component {
 											onChange={event => this.setState(byPropKey('password', event.target.value))}
 											type="password"
 											name="password"
-											id="inputPass"
-											placeholder="Contraseña..." />
+											id="inputPass" />
 										<PasswordForgetLink />
 									</FormGroup>
 

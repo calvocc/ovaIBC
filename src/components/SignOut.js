@@ -1,9 +1,11 @@
 import React from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
-
+import {
+	DropdownItem
+} from 'reactstrap';
 import { auth } from '../firebase';
 
 	const SignOutButton = () =>
-		<MenuItem onClick={auth.doSignOut}>Cerrar sesión</MenuItem>
+
+		<DropdownItem onClick={auth.doSignOut}>Cerrar sesión</DropdownItem>
 
 export default SignOutButton;
