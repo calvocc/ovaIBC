@@ -2,12 +2,13 @@ import { db } from './firebase';
 
 // User API
 
-export const doCreateUser = (id, Nombre, Apellidos, Telefono, Email, Nacimiento, Registro, Rol) =>
+export const doCreateUser = (id, Nombre, Apellidos, Telefono, Email, Iglesia, Nacimiento, Registro, Rol) =>
 	db.ref(`Usuarios/${id}`).set({
 		Nombre,
 		Apellidos,
 		Telefono,
 		Email,
+		Iglesia,
 		Nacimiento,
 		Registro,
 		Rol
@@ -41,10 +42,18 @@ export const onGetIglesias = () =>
 
 
 // Locaciones APIs
-export const doCreatePais = (Id, Nombre, Estado) =>
+export const doCreatePais = (Id, Nombre, Estado, Registro) =>
 	db.ref(`Paises/${Id}`).set({
 		Nombre,
-		Estado
+		Estado,
+		Registro
+	})
+
+export const doEditPais = (Id, Nombre, Estado, Registro) =>
+	db.ref(`Paises/${Id}`).set({
+		Nombre,
+		Estado,
+		Registro
 	})
 
 export const onGetPais = (id) =>

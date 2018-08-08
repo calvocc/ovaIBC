@@ -15,9 +15,12 @@ import {
 } from 'reactstrap';
 import { auth } from '../firebase/firebase';
 import { db } from '../firebase';
+import AuthUserContext from '../components/AuthUserContext';
 
 import * as routes from '../constants/routes';
 import SignOutButton from './SignOut'
+
+console.log(AuthUserContext)
 
 class MenuAppBar extends React.Component {
 	constructor(props) {
@@ -28,14 +31,16 @@ class MenuAppBar extends React.Component {
 	}
 
 	componentDidMount() {
-		auth.onAuthStateChanged( User => {
-			if (User){
-				console.log(User.uid)
-				db.onGetUsers(User.uid).then(snapshot =>
-					this.setState(() => ({ users: snapshot.val().Nombre }))
-				);
-			}
-		})
+		if (this.props.usuario){
+			db.onGetUsers(this.props.usuario.uid).then(snapshot =>
+				this.setState(() => ({ 
+					Nombre: snapshot.val().Nombre,
+					Apellidos: snapshot.val().Apellidos,
+					Rol: snapshot.val().Rol,
+					Email: snapshot.val().Email,
+				}))
+			);
+		}
 	}
 
 	render() {
@@ -46,6 +51,24 @@ class MenuAppBar extends React.Component {
 					<NavbarToggler onClick={this.toggle} />
 					<Collapse isOpen={this.state.isOpen} navbar>
 						<Nav className="ml-auto" navbar>
+							{ this.state.Rol >=3 &&
+								<UncontrolledDropdown nav inNavbar>
+									<DropdownToggle nav caret>
+										Locaciones
+									</DropdownToggle>
+									<DropdownMenu right>
+										<DropdownItem tag={Link} to={routes.PAISES}>
+											Paises
+										</DropdownItem>
+										<DropdownItem tag={Link} to={routes.CIUDADES}>
+											Ciudades
+										</DropdownItem>
+										<DropdownItem tag={Link} to={routes.IGLESIAS}>
+											Iglesias
+										</DropdownItem>
+									</DropdownMenu>
+								</UncontrolledDropdown>
+							}
 							<NavItem>
 								<NavLink tag={Link} to={routes.INICIO}>Cursos</NavLink>
 							</NavItem>
@@ -63,7 +86,7 @@ class MenuAppBar extends React.Component {
 							</NavItem>
 							<UncontrolledDropdown nav inNavbar>
 								<DropdownToggle nav caret>
-									{this.state.users}
+									{this.state.Email}
 								</DropdownToggle>
 								<DropdownMenu right>
 									<DropdownItem tag={Link} to={routes.INICIO}>
@@ -84,5 +107,6 @@ class MenuAppBar extends React.Component {
 
 	}
 }
+
 
 export default MenuAppBar;

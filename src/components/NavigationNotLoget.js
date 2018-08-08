@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import {
 	Collapse,
 	Navbar,
@@ -13,7 +12,6 @@ import {
 
 
 import * as routes from '../constants/routes';
-import styles from '../utils/stylos.css'
 
 
 class NavigationNotLoget extends React.Component {

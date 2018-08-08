@@ -22,8 +22,6 @@ const INITIAL_STATE = {
 	Iglesia: '',
 	OptionsIglesias: [],
 	selectIglesia: '',
-	Cargo: '',
-	OptionsCargo: [{ value: 'Pastor', label: 'Pastor' }, { value: 'Co-Pastor', label: 'Co-Pastor' }, { value: 'Lider', label: 'Lider' }, { value: 'Maestro', label: 'Maestro' }, { value: 'Alabanza', label: 'Alabanza' }, { value: 'Servidor', label: 'Servidor' }, { value: 'Miembro', label: 'Miembro' }, { value: 'Invitado', label: 'Invitado' }, { value: 'Otro', label: 'Otro' }],
 	Nacimiento: null,
 	Registro: format(new Date(), 'MM/DD/YYYY'),
 	Rol: 0,
@@ -154,7 +152,6 @@ class SignUpForm extends Component {
 			Telefono,
 			Email,
 			Iglesia,
-			Cargo,
 			Nacimiento,
 			Registro,
 			Rol,
@@ -168,7 +165,7 @@ class SignUpForm extends Component {
 		auth.doCreateUserWithEmailAndPassword(Email, passwordOne)
 			.then(authUser => {
 				// Create a user in your own accessible Firebase Database too
-				db.doCreateUser(authUser.user.uid, Nombre, Apellidos, Telefono, Email, Iglesia, Cargo, Nacimiento, Registro, Rol)
+				db.doCreateUser(authUser.user.uid, Nombre, Apellidos, Telefono, Email, Iglesia, Nacimiento, Registro, Rol)
 					.then(() => {
 						this.setState(() => ({ ...INITIAL_STATE }));
 						history.push(routes.INICIO);
@@ -223,7 +220,6 @@ class SignUpForm extends Component {
 			Telefono,
 			Email,
 			Iglesia,
-			Cargo,
 			Nacimiento,
 			passwordOne,
 			passwordTwo,
@@ -236,7 +232,6 @@ class SignUpForm extends Component {
 			IglesiaCiudad,
 			errorIglesia,
 			OptionsIglesias,
-			OptionsCargo,
 			OptionsPaises,
 			OptionsCiudades
 		} = this.state;
@@ -249,7 +244,6 @@ class SignUpForm extends Component {
 			Apellidos === '' ||
 			Telefono === '' ||
 			Iglesia === '' ||
-			Cargo === '' ||
 			Nacimiento === '';
 
 		const isInvalidIglesia = 
@@ -359,39 +353,6 @@ class SignUpForm extends Component {
 											</FormGroup>
 										</Col>
 										<Col xs="12" sm="6" md="6" lg="6">
-											<FormGroup>
-												<Label className="label" for="inputCargo">Cargo  <span className="texto-danger">*</span></Label>
-												<Autocomplete
-													value={Cargo}
-													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
-													menuStyle={{
-														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-														background: 'rgba(255, 255, 255, 0.9)',
-														padding: '2px 0',
-														overflow: 'auto',
-														maxHeight: '200px',
-														position: 'absolute',
-														top: '100%',
-														left: '0px',
-														rigth: '0px',
-														zIndex: 5
-													}}
-													getItemValue={(item) => item.label}
-													items={OptionsCargo}
-													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-													renderItem={(item, isHighlighted) =>
-														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
-															{item.label}
-														</div>
-													}
-													onChange={(event, value) => this.setState({ Cargo: value })}
-													onSelect={val => this.setState({ Cargo: val})}
-												/>
-											</FormGroup>
-										</Col>
-									</Row>
-									<Row>
-										<Col xs="12" sm="12" md="12" lg="12">
 											<FormGroup>
 												<Label className="label" for="inputEmail">Email  <span className="texto-danger">*</span></Label>
 												<Input

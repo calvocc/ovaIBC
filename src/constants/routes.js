@@ -5,3 +5,5 @@ export const INICIO = '/inicio';
 export const PERFIL = '/perfil';
 export const OLVIDAR_CONTRASENA = '/olvidar-contrasena';
 export const PAISES = '/paises';
+export const CIUDADES = '/ciudades';
+export const IGLESIAS = '/iglesias';

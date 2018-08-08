@@ -6,15 +6,16 @@ import uuid from 'uuid';
 import Autocomplete from 'react-autocomplete';
 import withAuthorization from '../components/withAuthorization';
 
-const PaisesPage = ({ history }) => <ListaPaises history={history} />
+const CiudadesPage = ({ history }) => <ListaPaises history={history} />
 
 const INITIAL_STATE = {
-    Paises: [],
+    OptionsPaises: [],
+    Pais: '',
     Buscar: '',
-    PaisId: '',
-    PaisNombre: '',
-    PaisEstado: '',
-    PaisSelect: '',
+    CiudadId: '',
+    CiudadNombre: '',
+    CiudadEstado: '',
+    CiudadSelect: '',
     OptionsEstado: [{ value: 1, label: 'Activo' }, { value: 2, label: 'Inactivo' }],
     Registro: format(new Date(), 'MM/DD/YYYY'),
     error: null,
@@ -38,17 +39,49 @@ class ListaPaises extends Component {
         this.toggleEditar = this.toggle.bind(this);
         this.changeRol = this.changeRol.bind(this);
         this.addPaises = this.addPaises.bind(this);
+        this.addCiudades = this.addCiudades.bind(this);
     }
 
     componentDidMount() {
         this.handleResize();
         window.addEventListener('resize', this.handleResize)
-        db.onGetPaises().on('value', snapshot => 
-            this.addPaises(snapshot, 'Nombre', 'asc')
+        db.onGetPaises().orderByChild('Estado').equalTo(1).on('value', this.addPaises)
+        db.onGetCiudades().on('value', snapshot => 
+            this.addCiudades(snapshot, 'Nombre', 'asc')
         )
     }
 
     addPaises = (data, key, orden) => {
+        const items = [];
+        data.forEach(dataItem => {
+            const item = dataItem.val();
+            const dataOptions = {
+				value: item.Nombre, label: item.Nombre
+            }
+            items.push(dataOptions);
+        })
+
+        //Ordenar alfabeticamente
+        items.sort(function (a, b) {
+            var x = a[key],
+                y = b[key];
+
+            if (orden === 'asc') {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
+
+            if (orden === 'desc') {
+                return ((x > y) ? -1 : ((x < y) ? 1 : 0));
+            }
+        });
+
+        this.setState({
+            OptionsPaises: items,
+            cargando: false
+        })
+    }
+
+    addCiudades = (data, key, orden) => {
         const items = [];
         data.forEach(dataItem => {
             const item = dataItem.val();
@@ -71,7 +104,7 @@ class ListaPaises extends Component {
         });
 
         this.setState({
-            Paises: items,
+            Ciudades: items,
             cargando: false
         })
     }
@@ -174,7 +207,8 @@ class ListaPaises extends Component {
 
     render() {
         const {
-            Paises,
+            OptionsPaises,
+            Ciudades,
             Buscar,
             Error,
             PaisNombre,
@@ -197,16 +231,48 @@ class ListaPaises extends Component {
                                 <div className="titulo-flex">
                                     <div className="espacios"></div>
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Listado de países</h5>
+                                        <h5 className="modal-title">Listado de ciudades</h5>
                                     </div>
                                     <div className="espacios"></div>
                                 </div>
 
-                                <p className="text-center">Los países acontinuación son los que se encuentran registrados en la plataforma.</p>
-
-                                <Row className="justify-content-center align-items-center m-bottom-30">
-                                    <Col xs="12" sm="8" md="8" lg="8">
-                                        <form >
+                                <p className="text-center">Las ciudades acontinuación son las que se encuentran registrados en la plataforma.</p>
+                                <form >
+                                    <Row className="justify-content-center align-items-center">
+                                        <Col xs="12" sm="12" md="12" lg="12">
+                                            <FormGroup>
+                                                <Label className="label" for="inputPais">Buscar por país</Label>
+                                                <Autocomplete
+													value={Paises}
+													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
+													menuStyle={{
+														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+														background: 'rgba(255, 255, 255, 0.9)',
+														padding: '2px 0',
+														overflow: 'auto',
+														maxHeight: '200px',
+														position: 'absolute',
+														top: '100%',
+														left: '0px',
+														rigth: '0px',
+														zIndex: 5
+													}}
+													getItemValue={(item) => item.label}
+													items={OptionsPaises}
+													shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+													renderItem={(item, isHighlighted) =>
+														<div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+															{item.label}
+														</div>
+													}
+													onChange={(event, value) => this.setState({ Paises: value })}
+													onSelect={val => this.setState({ Paises: val })}
+												/>
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+                                    <Row className="justify-content-center align-items-center m-bottom-30">
+                                        <Col xs="12" sm="8" md="8" lg="8">
                                             <FormGroup>
                                                 <Input
                                                     value={Buscar}
@@ -215,13 +281,12 @@ class ListaPaises extends Component {
                                                     placeholder="Buscar..."
                                                     id="inputBuscar" />
                                             </FormGroup>
-                                        </form>
-                                    </Col>
-                                    <Col xs="12" sm="4" md="4" lg="4">
-                                        <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>Agregar</Button>
-                                    </Col>
-                                </Row>
-
+                                        </Col>
+                                        <Col xs="12" sm="4" md="4" lg="4">
+                                            <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>Agregar</Button>
+                                        </Col>
+                                    </Row>
+                                </form>
                                 {
                                     !cargando &&
                                     Paises.map((item, index) =>
@@ -340,4 +405,4 @@ class ListaPaises extends Component {
 }
 
 const authCondition = (authUser) => !!authUser && authUser.Rol >= 3;
-export default withAuthorization(authCondition)(PaisesPage);
+export default withAuthorization(authCondition)(CiudadesPage);
