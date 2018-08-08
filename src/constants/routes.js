@@ -4,3 +4,4 @@ export const LANDING = '/';
 export const INICIO = '/inicio';
 export const PERFIL = '/perfil';
 export const OLVIDAR_CONTRASENA = '/olvidar-contrasena';
+export const PAISES = '/paises';

@@ -12,6 +12,7 @@ import SignInPage from '../screens/SignIn';
 import PasswordForgetPage from '../screens/PasswordForget';
 import HomePage from '../screens/Home';
 import AccountPage from '../screens/Account';
+import PisesPage from '../screens/Paises';
 
 import * as routes from '../constants/routes';
 import withAuthentication from './withAuthentication';
@@ -43,6 +44,10 @@ const App = () =>
 			<Route
 				exact path={routes.PERFIL}
 				component={() => <AccountPage />}
+			/>
+			<Route
+				exact path={routes.PAISES}
+				component={() => <PisesPage/>}
 			/>
 			<div className="footer">
 				<p className="copy">Power by {' '} <Link className="enlace" to={routes.INICIO}>Asilo de Ideas</Link></p>
