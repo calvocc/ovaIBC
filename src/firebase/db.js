@@ -50,7 +50,7 @@ export const doCreatePais = (Id, Nombre, Estado, Registro) =>
 	})
 
 export const doEditPais = (Id, Nombre, Estado, Registro) =>
-	db.ref(`Paises/${Id}`).set({
+	db.ref(`Paises/${Id}`).update({
 		Nombre,
 		Estado,
 		Registro
@@ -62,11 +62,20 @@ export const onGetPais = (id) =>
 export const onGetPaises = () =>
 	db.ref('Paises/')
 
-export const doCreateCiudad = (Id, Nombre, Pais, Estado) =>
+export const doCreateCiudad = (Id, Pais, Nombre, Estado, Registro) =>
 	db.ref(`Ciudades/${Id}`).set({
 		Nombre,
 		Pais,
-		Estado
+		Estado,
+		Registro
+	})
+
+export const doEditCiudad = (Id, Pais, Nombre, Estado, Registro) =>
+	db.ref(`Ciudades/${Id}`).update({
+		Nombre,
+		Pais,
+		Estado,
+		Registro
 	})
 
 export const onGetCiudad = (id) =>

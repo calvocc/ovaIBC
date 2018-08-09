@@ -13,14 +13,11 @@ import {
 	DropdownMenu,
 	DropdownItem
 } from 'reactstrap';
-import { auth } from '../firebase/firebase';
 import { db } from '../firebase';
-import AuthUserContext from '../components/AuthUserContext';
 
 import * as routes from '../constants/routes';
 import SignOutButton from './SignOut'
 
-console.log(AuthUserContext)
 
 class MenuAppBar extends React.Component {
 	constructor(props) {

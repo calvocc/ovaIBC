@@ -12,6 +12,7 @@ const INITIAL_STATE = {
     OptionsPaises: [],
     Pais: '',
     Buscar: '',
+    Ciudades: [],
     CiudadId: '',
     CiudadNombre: '',
     CiudadEstado: '',
@@ -19,6 +20,7 @@ const INITIAL_STATE = {
     OptionsEstado: [{ value: 1, label: 'Activo' }, { value: 2, label: 'Inactivo' }],
     Registro: format(new Date(), 'MM/DD/YYYY'),
     error: null,
+    errorPais: false,
     modal: false,
     editando: false,
     cargando: true,
@@ -40,19 +42,22 @@ class ListaPaises extends Component {
         this.changeRol = this.changeRol.bind(this);
         this.addPaises = this.addPaises.bind(this);
         this.addCiudades = this.addCiudades.bind(this);
+        this.selectPais = this.selectPais.bind(this);
     }
 
     componentDidMount() {
         this.handleResize();
         window.addEventListener('resize', this.handleResize)
-        db.onGetPaises().orderByChild('Estado').equalTo(1).on('value', this.addPaises)
+        db.onGetPaises().on('value', snapshot =>
+         this.addPaises(snapshot, 'label', 'asc')
+        )
         db.onGetCiudades().on('value', snapshot => 
             this.addCiudades(snapshot, 'Nombre', 'asc')
         )
     }
 
     addPaises = (data, key, orden) => {
-        const items = [];
+        const items = [{value: 'Todos', label: '--Todos--'}];
         data.forEach(dataItem => {
             const item = dataItem.val();
             const dataOptions = {
@@ -119,10 +124,27 @@ class ListaPaises extends Component {
         windowWidth: window.innerWidth
     });
 
+    selectPais = (val, item) => {
+        this.setState({
+            cargando: true,
+            Pais: val,
+            PaisLabel: item.value
+        })
+        if(item.value === 'Todos'){
+            db.onGetCiudades().on('value', snapshot => 
+                this.addCiudades(snapshot, 'Nombre', 'asc')
+            )
+        } else {
+            db.onGetCiudades().orderByChild('Pais').equalTo(item.value).on('value', snapshot => 
+                this.addCiudades(snapshot, 'Nombre', 'asc')
+            )
+        }
+    }
+
     changeRol = (val, item) => {
         this.setState({
-            PaisSelect: val,
-            PaisEstado: item.value
+            CiudadSelect: val,
+            CiudadEstado: item.value
         })
     }
 
@@ -147,8 +169,9 @@ class ListaPaises extends Component {
             cargando: true
         })
         const {
-            PaisNombre,
-            PaisEstado,
+            Pais,
+            CiudadNombre,
+            CiudadEstado,
             Registro,
         } = this.state;
 
@@ -156,12 +179,12 @@ class ListaPaises extends Component {
             history,
         } = this.props;
 
-        db.doCreatePais(uuid.v4(), PaisNombre, PaisEstado, Registro)
+        db.doCreateCiudad(uuid.v4(), Pais, CiudadNombre, CiudadEstado, Registro)
             .then(() => {
                 this.setState(() => ({ 
-                    PaisNombre: '',
-                    PaisEstado: '',
-                    PaisSelect: '',
+                    CiudadNombre: '',
+                    CiudadEstado: '',
+                    CiudadSelect: '',
                     modal: false,
                     cargando: false
                  }));
@@ -179,19 +202,20 @@ class ListaPaises extends Component {
             cargando: true
         })
         const {
-            PaisId,
-            PaisNombre,
-            PaisEstado,
+            CiudadId,
+            CiudadNombre,
+            CiudadEstado,
+            Pais,
             Registro,
         } = this.state;
 
-        db.doEditPais(PaisId, PaisNombre, PaisEstado, Registro)
+        db.doEditCiudad(CiudadId, Pais, CiudadNombre, CiudadEstado, Registro)
             .then(() => {
                 this.setState(() => ({ 
-                    PaisId: '',
-                    PaisNombre: '',
-                    PaisEstado: '',
-                    PaisSelect: '',
+                    CiudadId: '',
+                    CiudadNombre: '',
+                    CiudadEstado: '',
+                    CiudadSelect: '',
                     modal: false,
                     cargando: false,
                     editando: false
@@ -208,19 +232,20 @@ class ListaPaises extends Component {
     render() {
         const {
             OptionsPaises,
+            Pais,
             Ciudades,
             Buscar,
-            Error,
-            PaisNombre,
-            PaisEstado,
-            PaisSelect,
+            errorPais,
+            CiudadNombre,
+            CiudadEstado,
+            CiudadSelect,
             OptionsEstado,
             modal,
             editando,
             cargando,
         } = this.state;
 
-        const isInvalid = PaisNombre === '' || PaisEstado === '';
+        const isInvalid = Pais === '--Todos--' || CiudadNombre === '' || CiudadEstado === '';
 
         return (
             <Container>
@@ -231,7 +256,7 @@ class ListaPaises extends Component {
                                 <div className="titulo-flex">
                                     <div className="espacios"></div>
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Listado de ciudades</h5>
+                                        <h5 className="modal-title">Listado de ciudades o municipios</h5>
                                     </div>
                                     <div className="espacios"></div>
                                 </div>
@@ -241,9 +266,9 @@ class ListaPaises extends Component {
                                     <Row className="justify-content-center align-items-center">
                                         <Col xs="12" sm="12" md="12" lg="12">
                                             <FormGroup>
-                                                <Label className="label" for="inputPais">Buscar por país</Label>
+                                                <Label className="label" for="inputPais">Filtrar por país.</Label>
                                                 <Autocomplete
-													value={Paises}
+													value={Pais}
 													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
 													menuStyle={{
 														boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
@@ -265,8 +290,8 @@ class ListaPaises extends Component {
 															{item.label}
 														</div>
 													}
-													onChange={(event, value) => this.setState({ Paises: value })}
-													onSelect={val => this.setState({ Paises: val })}
+													onChange={(event, value) => this.setState({ Pais: value })}
+													onSelect={this.selectPais}
 												/>
                                             </FormGroup>
                                         </Col>
@@ -289,14 +314,14 @@ class ListaPaises extends Component {
                                 </form>
                                 {
                                     !cargando &&
-                                    Paises.map((item, index) =>
+                                    Ciudades.map((item, index) =>
                                         {
                                             item['Label'] = item.Estado === 1 ? 'Activo' : 'Inactivo';
                                             if( (item.Nombre.toLowerCase().search(Buscar.toLowerCase()) > -1 ) )
                                             return(
                                                 <div key={index} className="list-group-item d-flex justify-content-between align-items-center" style={{ color: item.Estado !== 1 ? '#efefef' : '#5b5b5b'}}>
                                                     {item.Nombre}
-                                                    <Button color="link" onClick={ () => this.setState({PaisNombre: item.Nombre, PaisSelect: item.Label, PaisId: item.key, modal: true, editando: true}) }><i className="fas fa-pencil-alt"></i></Button>
+                                                    <Button color="link" onClick={ () => this.setState({CiudadNombre: item.Nombre, CiudadSelect: item.Label, CiudadEstado: item.Estado, CiudadId: item.key, Pais: item.Pais, modal: true, editando: true}) }><i className="fas fa-pencil-alt"></i></Button>
                                                 </div>
                                             )
                                         }
@@ -316,7 +341,7 @@ class ListaPaises extends Component {
                         <Modal isOpen={this.state.modal} toggle={this.toggle} className="ova-modal">
                             <div className="titulo-flex">
                                 <div className="espacios"></div>
-                                <ModalHeader>{ !editando ? 'Agregar País' : 'Editar País'}</ModalHeader>
+                                <ModalHeader>{ !editando ? 'Agregar Ciudad' : 'Editar Ciudad'}</ModalHeader>
                                 <div className="espacios"></div>
                             </div>
 
@@ -330,18 +355,52 @@ class ListaPaises extends Component {
                                 {
                                     !cargando &&
                                     <div>
-                                        <p className="text-center">Ingrese los datos a continuacion para agregar un país desde el cual se podra acceder a la plataforma.</p>
+                                        <p className="text-center">Ingrese los datos a continuacion para agregar una ciudad o municipio desde el cual se podra acceder a la plataforma.</p>
                                         <form >
                                             <Row>
                                                 <Col xs="12" sm="12" md="12" lg="12">
                                                     <FormGroup>
                                                         <Label className="label" for="inputPaisNombre">País<span className="texto-danger">*</span></Label>
+                                                        <Autocomplete
+                                                            value={Pais}
+                                                            wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
+                                                            menuStyle={{
+                                                                boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+                                                                background: 'rgba(255, 255, 255, 0.9)',
+                                                                padding: '2px 0',
+                                                                overflow: 'auto',
+                                                                maxHeight: '200px',
+                                                                position: 'absolute',
+                                                                top: '100%',
+                                                                left: '0px',
+                                                                rigth: '0px',
+                                                                zIndex: 5
+                                                            }}
+                                                            getItemValue={(item) => item.label}
+                                                            items={OptionsPaises}
+                                                            shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+                                                            renderItem={(item, isHighlighted) =>
+                                                                <div key={item.label} className="itemSelect" style={{ background: isHighlighted ? '#673ab7' : 'white', color: isHighlighted ? '#ffffff' : '#a7a7a7' }}>
+                                                                    {item.label}
+                                                                </div>
+                                                            }
+                                                            onChange={(event, value) => this.setState({ Pais: value })}
+                                                            onSelect={this.selectPais}
+                                                        />
+                                                        { Pais === '--Todos--' && <p className="text-danger">Debe seleccionar un pais valido</p>}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col xs="12" sm="12" md="12" lg="12">
+                                                    <FormGroup>
+                                                        <Label className="label" for="inputCiudadNombre">Ciudad o Municipio<span className="texto-danger">*</span></Label>
                                                         <Input
-                                                            value={PaisNombre}
-                                                            onChange={event => this.setState(byPropKey('PaisNombre', event.target.value))}
+                                                            value={CiudadNombre}
+                                                            onChange={event => this.setState(byPropKey('CiudadNombre', event.target.value))}
                                                             type="text"
-                                                            name="PaisNombre"
-                                                            id="inputPaisNombre" />
+                                                            name="CiudadNombre"
+                                                            id="inputCiudadNombre" />
                                                     </FormGroup>
                                                 </Col>
                                             </Row>
@@ -350,7 +409,7 @@ class ListaPaises extends Component {
                                                     <FormGroup>
                                                         <Label className="label" for="inputIglesia">Estado  <span className="texto-danger">*</span></Label>
                                                         <Autocomplete
-                                                            value={PaisSelect}
+                                                            value={CiudadSelect}
                                                             wrapperStyle={{display: 'flex', flex: 1, flexDirection: 'column', position: 'relative'}}
                                                             menuStyle={{
                                                                 boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
@@ -372,7 +431,7 @@ class ListaPaises extends Component {
                                                                     {item.label}
                                                                 </div>
                                                             }
-                                                            onChange={(event, value) => this.setState({ PaisSelect: value })}
+                                                            onChange={(event, value) => this.setState({ CiudadSelect: value })}
                                                             onSelect={this.changeRol}
                                                         />
                                                     </FormGroup>
