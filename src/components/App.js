@@ -14,6 +14,7 @@ import HomePage from '../screens/Home';
 import AccountPage from '../screens/Account';
 import PisesPage from '../screens/Paises';
 import CiudadesPage from '../screens/Ciudades';
+import IglesiasPage from '../screens/Iglesias';
 
 import * as routes from '../constants/routes';
 import withAuthentication from './withAuthentication';
@@ -53,6 +54,10 @@ const App = () =>
 			<Route
 				exact path={routes.CIUDADES}
 				component={() => <CiudadesPage/>}
+			/>
+			<Route
+				exact path={routes.IGLESIAS}
+				component={() => <IglesiasPage/>}
 			/>
 			<div className="footer">
 				<p className="copy">Power by {' '} <Link className="enlace" to={routes.INICIO}>Asilo de Ideas</Link></p>

@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import uuid from 'uuid';
 import Autocomplete from 'react-autocomplete';
 import withAuthorization from '../components/withAuthorization';
+import * as COPI from '../constants/copis';
 
 const PaisesPage = ({ history }) => <ListaPaises history={history} />
 
@@ -197,12 +198,12 @@ class ListaPaises extends Component {
                                 <div className="titulo-flex">
                                     <div className="espacios"></div>
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Listado de países</h5>
+                                        <h5 className="modal-title">{COPI.PAISTITULO}</h5>
                                     </div>
                                     <div className="espacios"></div>
                                 </div>
 
-                                <p className="text-center">Los países acontinuación son los que se encuentran registrados en la plataforma.</p>
+                                <p className="text-center">{COPI.PAISSUBTITULO}</p>
 
                                 <Row className="justify-content-center align-items-center m-bottom-30">
                                     <Col xs="12" sm="8" md="8" lg="8">
@@ -212,13 +213,13 @@ class ListaPaises extends Component {
                                                     value={Buscar}
                                                     onChange={event => this.setState(byPropKey('Buscar', event.target.value))}
                                                     type="text"
-                                                    placeholder="Buscar..."
+                                                    placeholder={COPI.BUSCAR}
                                                     id="inputBuscar" />
                                             </FormGroup>
                                         </form>
                                     </Col>
                                     <Col xs="12" sm="4" md="4" lg="4">
-                                        <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>Agregar</Button>
+                                        <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>{COPI.BTNAGREGAR}</Button>
                                     </Col>
                                 </Row>
 
@@ -229,8 +230,8 @@ class ListaPaises extends Component {
                                             item['Label'] = item.Estado === 1 ? 'Activo' : 'Inactivo';
                                             if( (item.Nombre.toLowerCase().search(Buscar.toLowerCase()) > -1 ) )
                                             return(
-                                                <div key={index} className="list-group-item d-flex justify-content-between align-items-center" style={{ color: item.Estado !== 1 ? '#efefef' : '#5b5b5b'}}>
-                                                    {item.Nombre}
+                                                <div key={index} className="list-group-item d-flex justify-content-between align-items-center" >
+                                                    <p className="texto-principal" style={{ color: item.Estado !== 1 ? '#b7b7b7' : '#5b5b5b', textDecorationLine: item.Estado !== 1 ? 'line-through' : 'none'}}>{item.Nombre}</p>
                                                     <Button color="link" onClick={ () => this.setState({PaisNombre: item.Nombre, PaisSelect: item.Label, PaisId: item.key, modal: true, editando: true}) }><i className="fas fa-pencil-alt"></i></Button>
                                                 </div>
                                             )
@@ -251,7 +252,7 @@ class ListaPaises extends Component {
                         <Modal isOpen={this.state.modal} toggle={this.toggle} className="ova-modal">
                             <div className="titulo-flex">
                                 <div className="espacios"></div>
-                                <ModalHeader>{ !editando ? 'Agregar País' : 'Editar País'}</ModalHeader>
+                                <ModalHeader>{ !editando ? COPI.PAISTITULOAGREGAR : COPI.PAISTITULOEDITAR}</ModalHeader>
                                 <div className="espacios"></div>
                             </div>
 
@@ -265,7 +266,7 @@ class ListaPaises extends Component {
                                 {
                                     !cargando &&
                                     <div>
-                                        <p className="text-center">Ingrese los datos a continuacion para agregar un país desde el cual se podra acceder a la plataforma.</p>
+                                        <p className="text-center">{COPI.PAISDESCRIBCIONFORM}</p>
                                         <form >
                                             <Row>
                                                 <Col xs="12" sm="12" md="12" lg="12">
@@ -320,13 +321,13 @@ class ListaPaises extends Component {
                                 {Error && <p>{Error.message}</p>}
                             </ModalBody>
                             <ModalFooter>
-                                <Button color="primary" onClick={this.toggle}>Cancelar</Button>
+                                <Button color="primary" onClick={this.toggle}>{COPI.BTNCANCELAR}</Button>
                                 {' '}
                                 {
                                     !editando ?
-                                    <Button color="secondary" onClick={this.onSubmit} disabled={isInvalid}>Agregar</Button>
+                                    <Button color="secondary" onClick={this.onSubmit} disabled={isInvalid}>{COPI.BTNAGREGAR}</Button>
                                     :
-                                    <Button color="secondary" onClick={this.onSubmitEdit}>Editar</Button>
+                                    <Button color="secondary" onClick={this.onSubmitEdit}>{COPI.BTNEDITAR}</Button>
                                 }
                             </ModalFooter>
                         </Modal>

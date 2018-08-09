@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import uuid from 'uuid';
 import Autocomplete from 'react-autocomplete';
 import withAuthorization from '../components/withAuthorization';
+import * as COPI from '../constants/copis';
 
 const CiudadesPage = ({ history }) => <ListaPaises history={history} />
 
@@ -256,17 +257,17 @@ class ListaPaises extends Component {
                                 <div className="titulo-flex">
                                     <div className="espacios"></div>
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Listado de ciudades o municipios</h5>
+                                        <h5 className="modal-title">{COPI.CIUDADTITULO}</h5>
                                     </div>
                                     <div className="espacios"></div>
                                 </div>
 
-                                <p className="text-center">Las ciudades acontinuación son las que se encuentran registrados en la plataforma.</p>
+                                <p className="text-center">{COPI.CIUDADSUBTITULO}</p>
                                 <form >
                                     <Row className="justify-content-center align-items-center">
                                         <Col xs="12" sm="12" md="12" lg="12">
                                             <FormGroup>
-                                                <Label className="label" for="inputPais">Filtrar por país.</Label>
+                                                <Label className="label" for="inputPais">{COPI.CIUDADFILTRAR}</Label>
                                                 <Autocomplete
 													value={Pais}
 													wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
@@ -303,12 +304,12 @@ class ListaPaises extends Component {
                                                     value={Buscar}
                                                     onChange={event => this.setState(byPropKey('Buscar', event.target.value))}
                                                     type="text"
-                                                    placeholder="Buscar..."
+                                                    placeholder={COPI.BUSCAR}
                                                     id="inputBuscar" />
                                             </FormGroup>
                                         </Col>
                                         <Col xs="12" sm="4" md="4" lg="4">
-                                            <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>Agregar</Button>
+                                            <Button color="primary" block onClick={this.toggle} style={{marginBottom: '1rem'}}>{COPI.BTNAGREGAR}</Button>
                                         </Col>
                                     </Row>
                                 </form>
@@ -319,8 +320,8 @@ class ListaPaises extends Component {
                                             item['Label'] = item.Estado === 1 ? 'Activo' : 'Inactivo';
                                             if( (item.Nombre.toLowerCase().search(Buscar.toLowerCase()) > -1 ) )
                                             return(
-                                                <div key={index} className="list-group-item d-flex justify-content-between align-items-center" style={{ color: item.Estado !== 1 ? '#efefef' : '#5b5b5b'}}>
-                                                    {item.Nombre}
+                                                <div key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                                                    <p className="texto-principal" style={{ color: item.Estado !== 1 ? '#b7b7b7' : '#5b5b5b', textDecorationLine: item.Estado !== 1 ? 'line-through' : 'none'}}>{item.Nombre}</p>
                                                     <Button color="link" onClick={ () => this.setState({CiudadNombre: item.Nombre, CiudadSelect: item.Label, CiudadEstado: item.Estado, CiudadId: item.key, Pais: item.Pais, modal: true, editando: true}) }><i className="fas fa-pencil-alt"></i></Button>
                                                 </div>
                                             )
@@ -341,7 +342,7 @@ class ListaPaises extends Component {
                         <Modal isOpen={this.state.modal} toggle={this.toggle} className="ova-modal">
                             <div className="titulo-flex">
                                 <div className="espacios"></div>
-                                <ModalHeader>{ !editando ? 'Agregar Ciudad' : 'Editar Ciudad'}</ModalHeader>
+                                <ModalHeader>{ !editando ? COPI.CIUDADTITULOAGREGAR : COPI.CIUDADTITULOEDITAR}</ModalHeader>
                                 <div className="espacios"></div>
                             </div>
 
@@ -355,12 +356,12 @@ class ListaPaises extends Component {
                                 {
                                     !cargando &&
                                     <div>
-                                        <p className="text-center">Ingrese los datos a continuacion para agregar una ciudad o municipio desde el cual se podra acceder a la plataforma.</p>
+                                        <p className="text-center">{COPI.CIUDADDESCRIBCIONFORM}</p>
                                         <form >
                                             <Row>
                                                 <Col xs="12" sm="12" md="12" lg="12">
                                                     <FormGroup>
-                                                        <Label className="label" for="inputPaisNombre">País<span className="texto-danger">*</span></Label>
+                                                        <Label className="label" for="inputPaisNombre">{COPI.PAIS}<span className="texto-danger">*</span></Label>
                                                         <Autocomplete
                                                             value={Pais}
                                                             wrapperStyle={{ display: 'flex', flex: 1, flexDirection: 'column', position: 'relative' }}
@@ -387,14 +388,14 @@ class ListaPaises extends Component {
                                                             onChange={(event, value) => this.setState({ Pais: value })}
                                                             onSelect={this.selectPais}
                                                         />
-                                                        { Pais === '--Todos--' && <p className="text-danger">Debe seleccionar un pais valido</p>}
+                                                        { Pais === '--Todos--' && <p className="text-danger">{COPI.ERRORPAIS}</p>}
                                                     </FormGroup>
                                                 </Col>
                                             </Row>
                                             <Row>
                                                 <Col xs="12" sm="12" md="12" lg="12">
                                                     <FormGroup>
-                                                        <Label className="label" for="inputCiudadNombre">Ciudad o Municipio<span className="texto-danger">*</span></Label>
+                                                        <Label className="label" for="inputCiudadNombre">{COPI.CIUDAD}<span className="texto-danger">*</span></Label>
                                                         <Input
                                                             value={CiudadNombre}
                                                             onChange={event => this.setState(byPropKey('CiudadNombre', event.target.value))}
@@ -407,7 +408,7 @@ class ListaPaises extends Component {
                                             <Row>
                                                 <Col xs="12" sm="12" md="12" lg="12">
                                                     <FormGroup>
-                                                        <Label className="label" for="inputIglesia">Estado  <span className="texto-danger">*</span></Label>
+                                                        <Label className="label" for="inputIglesia">{COPI.ESTADO}  <span className="texto-danger">*</span></Label>
                                                         <Autocomplete
                                                             value={CiudadSelect}
                                                             wrapperStyle={{display: 'flex', flex: 1, flexDirection: 'column', position: 'relative'}}
@@ -444,13 +445,13 @@ class ListaPaises extends Component {
                                 {Error && <p>{Error.message}</p>}
                             </ModalBody>
                             <ModalFooter>
-                                <Button color="primary" onClick={this.toggle}>Cancelar</Button>
+                                <Button color="primary" onClick={this.toggle}>{COPI.BTNCANCELAR}</Button>
                                 {' '}
                                 {
                                     !editando ?
-                                    <Button color="secondary" onClick={this.onSubmit} disabled={isInvalid}>Agregar</Button>
+                                    <Button color="secondary" onClick={this.onSubmit} disabled={isInvalid}>{COPI.BTNAGREGAR}</Button>
                                     :
-                                    <Button color="secondary" onClick={this.onSubmitEdit}>Editar</Button>
+                                    <Button color="secondary" onClick={this.onSubmitEdit}>{COPI.BTNEDITAR}</Button>
                                 }
                             </ModalFooter>
                         </Modal>
